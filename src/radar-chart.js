@@ -1,4 +1,4 @@
-var RadarChart = {
+export const RadarChart = {
   defaultConfig: {
     containerClass: 'radar-chart',
     w: 600,
