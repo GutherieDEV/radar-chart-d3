@@ -21,32 +21,36 @@ export const RadarChart = {
     backgroundTooltipOpacity: "0.7",
     tooltipColor: "white",
     axisJoin: function(d, i) {
+      "use strict";
       return d.className || i;
     },
     tooltipFormatValue: function(d) {
+      "use strict";
       return d;
     },
     tooltipFormatClass: function(d) {
+      "use strict";
       return d;
     },
     transitionDuration: 300
   },
   chart: function() {
     // default config
-    var cfg = Object.create(RadarChart.defaultConfig);
+    "use strict";
+    const cfg = Object.create(RadarChart.defaultConfig);
     function setTooltip(tooltip, msg){
-      if(msg === false || msg == undefined){
+      if(msg === false || !msg){
         tooltip.classed("visible", 0);
         tooltip.select("rect").classed("visible", 0);
       }else{
         tooltip.classed("visible", 1);
 
-        var container = tooltip.node().parentNode;
-        var coords = d3.mouse(container);
+        const container = tooltip.node().parentNode;
+        const coords = d3.mouse(container);
 
         tooltip.select("text").classed('visible', 1).style("fill", cfg.tooltipColor);
-        var padding=5;
-        var bbox = tooltip.select("text").text(msg).node().getBBox();
+        const padding=5;
+        const bbox = tooltip.select("text").text(msg).node().getBBox();
 
         tooltip.select("rect")
         .classed('visible', 1).attr("x", 0)
@@ -56,17 +60,17 @@ export const RadarChart = {
         .attr("height", bbox.height + (padding*2))
         .attr("rx","5").attr("ry","5")
         .style("fill", cfg.backgroundTooltipColor).style("opacity", cfg.backgroundTooltipOpacity);
-        tooltip.attr("transform", "translate(" + (coords[0]+10) + "," + (coords[1]-10) + ")")
+        tooltip.attr("transform", "translate(" + (coords[0]+10) + "," + (coords[1]-10) + ")");
       }
     }
     function radar(selection) {
       selection.each(function(data) {
-        var container = d3.select(this);
-        var tooltip = container.selectAll('g.tooltip').data([data[0]]);
+        const container = d3.select(this);
+        const tooltip = container.selectAll('g.tooltip').data([data[0]]);
 
-        var tt = tooltip.enter()
+        const tt = tooltip.enter()
         .append('g')
-        .classed('tooltip', true)
+        .classed('tooltip', true);
 
         tt.append('rect').classed("tooltip", true);
         tt.append('text').classed("tooltip", true);
@@ -79,15 +83,15 @@ export const RadarChart = {
           return datum;
         });
 
-        var maxValue = Math.max(cfg.maxValue, d3.max(data, function(d) {
+        let maxValue = Math.max(cfg.maxValue, d3.max(data, function(d) {
           return d3.max(d.axes, function(o){ return o.value; });
         }));
         maxValue -= cfg.minValue;
 
-        var allAxis = data[0].axes.map(function(i, j){ return {name: i.axis, xOffset: (i.xOffset)?i.xOffset:0, yOffset: (i.yOffset)?i.yOffset:0}; });
-        var total = allAxis.length;
-        var radius = cfg.factor * Math.min(cfg.w / 2, cfg.h / 2);
-        var radius2 = Math.min(cfg.w / 2, cfg.h / 2);
+        const allAxis = data[0].axes.map(function(i){ return {name: i.axis, xOffset: (i.xOffset)?i.xOffset:0, yOffset: (i.yOffset)?i.yOffset:0}; });
+        const total = allAxis.length;
+        const radius = cfg.factor * Math.min(cfg.w / 2, cfg.h / 2);
+        const radius2 = Math.min(cfg.w / 2, cfg.h / 2);
 
         container.classed(cfg.containerClass, 1);
 
@@ -103,11 +107,11 @@ export const RadarChart = {
         }
 
         // levels && axises
-        var levelFactors = d3.range(0, cfg.levels).map(function(level) {
+        const levelFactors = d3.range(0, cfg.levels).map(function(level) {
           return radius * ((level + 1) / cfg.levels);
         });
 
-        var levelGroups = container.selectAll('g.level-group').data(levelFactors);
+        const levelGroups = container.selectAll('g.level-group').data(levelFactors);
 
         levelGroups.enter().append('g');
         levelGroups.exit().remove();
@@ -116,7 +120,7 @@ export const RadarChart = {
           return 'level-group level-group-' + i;
         });
 
-        var levelLine = levelGroups.selectAll('.level').data(function(levelFactor) {
+        const levelLine = levelGroups.selectAll('.level').data(function(levelFactor) {
           return d3.range(0, total).map(function() { return levelFactor; });
         });
 
@@ -127,28 +131,28 @@ export const RadarChart = {
           levelLine
           .attr('class', 'level')
           .attr('x1', function(levelFactor, i){
-            if (radius == levelFactor) {
+            if (radius === levelFactor) {
               return getHorizontalPosition(i, levelFactor);
             } else {
               return getHorizontalPosition(i, levelFactor) + (cfg.TickLength / 2) * Math.cos(i * cfg.radians / total);
             }
           })
           .attr('y1', function(levelFactor, i){
-            if (radius == levelFactor) {
+            if (radius === levelFactor) {
               return getVerticalPosition(i, levelFactor);
             } else {
               return getVerticalPosition(i, levelFactor) - (cfg.TickLength / 2) * Math.sin(i * cfg.radians / total);
             }
           })
           .attr('x2', function(levelFactor, i){
-            if (radius == levelFactor) {
+            if (radius === levelFactor) {
               return getHorizontalPosition(i+1, levelFactor);
             } else {
               return getHorizontalPosition(i, levelFactor) - (cfg.TickLength / 2) * Math.cos(i * cfg.radians / total);
             }
           })
           .attr('y2', function(levelFactor, i){
-            if (radius == levelFactor) {
+            if (radius === levelFactor) {
               return getVerticalPosition(i+1, levelFactor);
             } else {
               return getVerticalPosition(i, levelFactor) + (cfg.TickLength / 2) * Math.sin(i * cfg.radians / total);
@@ -170,9 +174,9 @@ export const RadarChart = {
           });
         }
         if(cfg.axisLine || cfg.axisText) {
-          var axis = container.selectAll('.axis').data(allAxis);
+          const axis = container.selectAll('.axis').data(allAxis);
 
-          var newAxis = axis.enter().append('g');
+          const newAxis = axis.enter().append('g');
           if(cfg.axisLine) {
             newAxis.append('line');
           }
@@ -195,13 +199,13 @@ export const RadarChart = {
           if(cfg.axisText) {
             axis.select('text')
             .attr('class', function(d, i){
-              var p = getHorizontalPosition(i, 0.5);
+              const p = getHorizontalPosition(i, 0.5);
 
               return 'legend ' +
               ((p < 0.4) ? 'left' : ((p > 0.6) ? 'right' : 'middle'));
             })
             .attr('dy', function(d, i) {
-              var p = getVerticalPosition(i, 0.5);
+              const p = getVerticalPosition(i, 0.5);
               return ((p < 0.1) ? '1em' : ((p > 0.9) ? '0' : '0.5em'));
             })
             .text(function(d) { return d.name; })
@@ -217,9 +221,9 @@ export const RadarChart = {
             axis.y = (cfg.h/2-radius2)+getVerticalPosition(i, radius2, (parseFloat(Math.max(axis.value - cfg.minValue, 0))/maxValue)*cfg.factor);
           });
         });
-        var polygon = container.selectAll(".area").data(data, cfg.axisJoin);
+        const polygon = container.selectAll(".area").data(data, cfg.axisJoin);
 
-        var polygonType = 'polygon';
+        let polygonType = 'polygon';
         if (cfg.open) {
           polygonType = 'polyline';
         }
@@ -246,7 +250,7 @@ export const RadarChart = {
 
         polygon
         .each(function(d, i) {
-          var classed = {'d3-exit': 0}; // if exiting element is being reused
+          const classed = {'d3-exit': 0}; // if exiting element is being reused
           classed['radar-chart-serie' + i] = 1;
           if(d.className) {
             classed[d.className] = 1;
@@ -269,7 +273,7 @@ export const RadarChart = {
 
         if(cfg.circles && cfg.radius) {
 
-          var circleGroups = container.selectAll('g.circle-group').data(data, cfg.axisJoin);
+          const circleGroups = container.selectAll('g.circle-group').data(data, cfg.axisJoin);
 
           circleGroups.enter().append('g').classed({'circle-group': 1, 'd3-enter': 1});
           circleGroups.exit()
@@ -278,7 +282,7 @@ export const RadarChart = {
 
           circleGroups
           .each(function(d) {
-            var classed = {'d3-exit': 0}; // if exiting element is being reused
+            const classed = {'d3-exit': 0}; // if exiting element is being reused
             if(d.className) {
               classed[d.className] = 1;
             }
@@ -289,7 +293,7 @@ export const RadarChart = {
             d3.select(this).classed('d3-enter', 0); // trigger css transition
           });
 
-          var circle = circleGroups.selectAll('.circle').data(function(datum, i) {
+          const circle = circleGroups.selectAll('.circle').data(function(datum, i) {
             return datum.axes.map(function(d) { return [d, i]; });
           });
 
@@ -301,7 +305,7 @@ export const RadarChart = {
             //container.classed('focus', 1);
             //container.select('.area.radar-chart-serie'+dd[1]).classed('focused', 1);
           })
-          .on('mouseout', function(dd){
+          .on('mouseout', function(){
             d3.event.stopPropagation();
             setTooltip(tooltip, false);
             container.classed('focus', 0);
@@ -315,7 +319,7 @@ export const RadarChart = {
 
           circle
           .each(function(d) {
-            var classed = {'d3-exit': 0}; // if exit element reused
+            const classed = {'d3-exit': 0}; // if exit element reused
             classed['radar-chart-serie'+d[1]] = 1;
             d3.select(this).classed(classed);
           })
@@ -335,14 +339,14 @@ export const RadarChart = {
           });
 
           //Make sure layer order is correct
-          var poly_node = polygon.node();
+          const poly_node = polygon.node();
           poly_node.parentNode.appendChild(poly_node);
 
-          var cg_node = circleGroups.node();
+          const cg_node = circleGroups.node();
           cg_node.parentNode.appendChild(cg_node);
 
           // ensure tooltip is upmost layer
-          var tooltipEl = tooltip.node();
+          const tooltipEl = tooltip.node();
           tooltipEl.parentNode.appendChild(tooltipEl);
         }
       });
@@ -366,8 +370,9 @@ export const RadarChart = {
     return radar;
   },
   draw: function(id, d, options) {
-    var chart = RadarChart.chart().config(options);
-    var cfg = chart.config();
+    "use strict";
+    const chart = RadarChart.chart().config(options);
+    const cfg = chart.config();
 
     d3.select(id).select('svg').remove();
     d3.select(id)
